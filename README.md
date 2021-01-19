@@ -30,3 +30,17 @@ TSLA	2020-10-21	0.9788	2020-11-05	0.856	-0.125459746628525
 VZ	2020-10-20	1.33	2020-10-20	1.344	0.0105263157894737
 PFE	2020-11-11	1.18	2020-12-04	1.376	0.166101694915254
 ```
+
+Usage:
+```
+  simReference = input file name for prediction data
+  simreportOutput = output file name for simulation results
+  dayhold = maximum days of holding a stock (default = 20)
+  buytype = string denoting which buy function to use. New functions must be inserted into the if/else buy statement of MasterSimulatorv2.0
+  buy.m1/buy.m2/buy.m3 = input metrics defining minimum metrics to trigger a buy (custom to each buy function)
+  selltype = string denoting which sell function to use. New functions must be inserted into the if/else sell statement of sim.tradev2.0
+  sell.ceiling = parameter for simple sell function (0.3/30% gain default)
+  sell.floor = parameter for simple sell function (-0.2/20% loss default)
+```
+
+All price data must span the dates in the reference prediction file. Price data can be obtained using the AlphaVantage data retreival tool (other repository) or any other tool to download the data. Price data columns must be in the order: Date, Open, Close, High, Low, Volume. Oldest dates on the bottom.
