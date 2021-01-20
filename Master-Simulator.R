@@ -19,7 +19,7 @@ MasterSimulatorv2.0<-function(simReference = "simulationRef.txt", simreportOutpu
     stkdata <- read.table(tickerList$filenames[i], sep = "\t", header = T, stringsAsFactors = F)
     tempPred <- stkPredData[which(stkPredData$Ticker == tickerList$Tickers[i]),]
     # Calls the buying function to find entry points.
-    if (buytype == "rf") {
+    if (buytype == "rf") {   # add new buy functions here
       tempTrades <- buy.RF.simple(tickerdf = stkdata, stkPredDF = tempPred, dayhold = dayhold, rfProb = buy.m1, RelProb = buy.m2, RelDiff = buy.m3)
     } else if (buytype == "nn") {
       tempTrades <- buy.NN.simple(tickerdf = stkdata, stkPredDF = tempPred, dayhold = dayhold, nnProb = buy.m1)
@@ -37,4 +37,31 @@ MasterSimulatorv2.0<-function(simReference = "simulationRef.txt", simreportOutpu
   }
   tradingLog$pctChange = (tradingLog[,5] - tradingLog[,3])/tradingLog[,3]
   write.table(tradingLog, simreportOutput, sep = "\t", col.names = T, row.names = F, quote = F)
+}
+
+
+
+################################################
+#Function for Master Simulator
+################################################
+
+# v2.0 simulator to simulate a trade after a designated buy date and price. It will then simulate the
+# selling/holding duration based on the sell function.
+#
+# the simulator will return a dataframe row with columns: Ticker, buy date, buy price, sell date, sell price.
+#
+
+sim.tradev2.0<-function(ticker, buydate, predDF, sellfunction = "simple", dayhold = 10, sell.ceiling = 0.2, sell.floor = -0.1,
+                        sell.rf = 0.85, sell.relprob = 0, sell.reldiff = 0.1, sell.nn = -5) {
+  stkfile <- paste(ticker , ".txt", sep = "")
+  stk <- read.table(stkfile, header = FALSE, sep = "\t")
+  buyRow <- which(stk[,1] == as.character(buydate))
+  # calls sell functions
+  if (sellfunction == "simple") {   # add new sell functions here
+    sellData <- sell.simple(tickerdf = stk, buyRow = buyRow, dayhold = dayhold, sellceiling = sell.ceiling, sellfloor = sell.floor)
+  } else if (sellfunction == "sls") {
+    sellData <- sell.trailing.sls(tickerdf = stk, buyRow = buyRow, dayhold = dayhold, sellfloor = sell.floor, sellceiling = sell.ceiling)
+  }
+  sim.sell <- data.frame(SellDate = sellData[1,1], SellPrice = sellData[1,2])
+  return(sim.sell)
 }
